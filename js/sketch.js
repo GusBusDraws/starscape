@@ -1,7 +1,7 @@
 let N_STARS = 100;
-let MIN_CLUSTER_R = 100;
-let MAX_CLUSTER_R = 500;
-let DEBUG_MODE = true;
+let MIN_CLUSTER_R = 10;
+let MAX_CLUSTER_R = 250;
+let DEBUG_MODE = false;
 let N_NEBULA_STARS = 1000;
 let y1;
 let y2;
@@ -9,18 +9,6 @@ let a;
 let b;
 let c = 0.02;
 let d = 0.5;
-
-function keyPressed() {
-  if (keyCode === 'd') {
-    if (DEBUG_MODE === true) {
-      DEBUG_MODE = false;
-      resetSketch();
-    } else {
-      DEBUG_MODE = true;
-      resetSketch();
-    }
-  }
-}
 
 function setup() {
   createCanvas(500, 500);
@@ -59,9 +47,13 @@ function draw() {
     y2 = a + b * cos(c * xNebula + d);
     let yNebula;
     if (y1 < y2) {
-      yNebula = random(y1, y2);
+      // yNebula = (y2 + y1) / 2
+      // yNebula = random(y1, y2)
+      yNebula = randomGaussian((y2 + y1) / 2, (y2 - y1) / 4);
     } else {
-      yNebula = random(y2, y1);
+      // yNebula = (y1 + y2) / 2
+      // yNebula = random(y2, y1)
+      yNebula = randomGaussian((y1 + y2) / 2, (y1 - y2) / 4);
     }
     point(xNebula, yNebula)
   }
@@ -71,7 +63,7 @@ function draw() {
     if (clusterRand < 0.2) {
       let posX = random(width)
       let posY = random(height)
-      let clusterSize = randomGaussian(MIN_CLUSTER_R, MAX_CLUSTER_R)
+      let clusterSize = random(MIN_CLUSTER_R, MAX_CLUSTER_R)
       for (let cluster_i = 0; cluster_i < 100; cluster_i ++) {
         // Star size
         let sizeRand = random(1);
@@ -85,10 +77,12 @@ function draw() {
         // Star brightness (opacity)
         let opacityRand = random(1);
         stroke(255, 255, 255, opacityRand * 255)
-        // Cluster sizw
-        let offsetX = randomGaussian(-clusterSize, clusterSize)
-        let offsetY = randomGaussian(-clusterSize, clusterSize)
-        point(posX + offsetX, posY + offsetY);
+        // Cluster size
+        let offsetX = randomGaussian(posX, clusterSize)
+        let offsetY = randomGaussian(posY, clusterSize)
+        // let offsetX = randomGaussian(-clusterSize, clusterSize)
+        // let offsetY = randomGaussian(-clusterSize, clusterSize)
+        point(offsetX, offsetY);
       }
     } else {
       point(random(width), random(height));
@@ -98,4 +92,5 @@ function draw() {
 
 function resetSketch() {
   background(0);
+  redraw();
 }
