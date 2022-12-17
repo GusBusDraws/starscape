@@ -1,54 +1,84 @@
 let N_STARS = 100;
 let MIN_CLUSTER_R = 10;
 let MAX_CLUSTER_R = 250;
+let N_NEBULA_STARS_MIN = 1000;
+let N_NEBULA_STARS_MAX = 10000;
+let NEBULA_THICKNESS_MIN;
+let NEBULA_THICKNESS_MAX;
 let DEBUG_MODE = true;
-let N_NEBULA_STARS = 10000;
-let COLORS = ['#5f0f40', '#9a031e', '#fb8b24', '#e36414', '#0f4c5c']
-let a = [];
-let b = [];
-let c = [];
-let d = [];
-let y;
-let wave = [];
+let N_WAVES;
+// let COLORS = ['#ff0000', '#00ff00', '#0000ff']
+let COLORS = ["#006ba6","#0496ff","#ffbc42","#d81159","#8f2d56"]
+// let BG_COLOR = "#03071e"
+let BG_COLOR = 0
+let a;
+let b;
+let c;
+let d;
+let waves;
 
 function setup() {
   createCanvas(500, 500);
+  frameRate(1);
   resetSketch();
+  NEBULA_THICKNESS_MIN = height / 25;
+  NEBULA_THICKNESS_MAX = height / 5;
   console.log('Press SPACE to stop looping or r to reset.');
 }
 
 function draw() {
-  noLoop();
-  let bg_color = color(0)
-  background(bg_color);
-  for (let x = 0; x < width; x += 0.1) {
-    a = 0.5 * height;
-    b = 0.3 * height;
-    c = 0.025;
-    d = 0.75
-    y = a + b * sin(c * x + d);
-    wave.push(y)
+  // noLoop();
+  a = [];
+  b = [];
+  c = [];
+  d = [];
+  waves = [];
+  let colorsToUse = [...COLORS]
+  N_WAVES = floor(random(2, COLORS.length))
+  background(BG_COLOR);
+  for (let i = 0; i < N_WAVES; i ++) {
+    a.push(random(height));
+    b.push(random(height));
+    c.push(random(0.005, 0.01));
+    d.push(random(2 * PI))
   }
-  if (DEBUG_MODE === true) {
-    strokeWeight(1);
-    for (let wave_i = 0; wave_i < wave.length; wave_i ++) {
-      stroke(0, 255, 0);
-      point(wave_i / 10, wave[wave_i]);
+  for (let wave_i = 0; wave_i < N_WAVES; wave_i ++) {
+    waves[wave_i] = [];
+    let pickedColor = random(colorsToUse)
+    stroke(pickedColor)
+    for (let x = 0; x < width; x ++) {
+      let y = a[wave_i] + b[wave_i] * sin(c[wave_i] * x + d[wave_i]);
+      waves[wave_i].push(y)
+      // point(x, y);
+    }
+  }
+  // if (DEBUG_MODE === true) {
+  //   strokeWeight(1);
+  //   for (let wave_i = 0; wave_i < wave.length; wave_i ++) {
+  //     stroke(COLORS[wave_i])
+  //     point(wave_i / 10, wave[wave_i]);
+  //   }
+  // }
+  for (let wave_i = 0; wave_i < N_WAVES; wave_i ++) {
+    let pickedColor = color(random(colorsToUse))
+    let index = colorsToUse.indexOf(pickedColor)
+    colorsToUse.splice(index, 1)
+    let nebulaThickness = random(NEBULA_THICKNESS_MIN, NEBULA_THICKNESS_MAX)
+    let nNebulaStars = random(N_NEBULA_STARS_MIN, N_NEBULA_STARS_MAX)
+    for (let nebula_i = 0; nebula_i < nNebulaStars; nebula_i ++) {
+      let opacityRand = random(25, 255);
+      pickedColor.setAlpha(opacityRand)
+      stroke(pickedColor)
+      let randomX = floor(random(width))
+      let y = waves[wave_i][randomX]
+      let randomY = randomGaussian(y, nebulaThickness)
+      strokeWeight(random(2))
+      point(randomX, randomY);
     }
   }
   let nebulaColor = random(COLORS)
-  // index = COLORS.indexOf(nebulaColor)
-  // COLORS.splice(index, 1)
   stroke(nebulaColor)
   strokeWeight(1)
-  for (i_nebula = 0; i_nebula < N_NEBULA_STARS; i_nebula ++) {
-    let xNebula = random(width);
-    y = a + b * sin(c * xNebula + d);
-    let yNebula = randomGaussian(y, 50)
-    // let yNebula = randomGaussian(y, random(50))
-    point(xNebula, yNebula)
-  }
-  // filter(BLUR, 1)
   let starColor = color(255)
   for (let star_i = 0; star_i < N_STARS; star_i ++) {
     // Cluster or singular star
@@ -83,5 +113,6 @@ function draw() {
 }
 
 function resetSketch() {
+  N_WAVES = 3;
   redraw();
 }
