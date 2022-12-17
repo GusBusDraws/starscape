@@ -21,6 +21,8 @@ function keyPressed() {
         DEBUG_MODE = true;
         resetSketch();
       }
+    } else if (key === 's') {
+      saveGif('animation', 5);
     }
   }
 
